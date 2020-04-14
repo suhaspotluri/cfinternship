@@ -1,0 +1,6 @@
+name = "cfinternship"
+type = "webpack"
+account_id = "8999ee2f36dd3873b5bab1fa66560327"
+workers_dev = true
+route = ""
+zone_id = ""
