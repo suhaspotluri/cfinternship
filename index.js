@@ -22,26 +22,25 @@ async function handleRequest(request) {
 
 
 const rewriter = new HTMLRewriter()
-  .on('a', new AttributeRewriter("href"))
-  .on('title', new InnerRewriter("Suhas Potluri",false))
-  .on('h1#title', new InnerRewriter("This is Site ",true))
-  .on('p#description', new InnerRewriter("Cloudflare Fullstack Internship Coding Challenge",false))
+  .on('a', new AttributeRewriter('href'))
+  .on('title', new TitleRewriter())
+  .on('h1#title', new H1Rewriter())
+  .on('p#description', new PRewriter())
 	
 
-class InnerRewriter {
-	constructor(adText,prep) {
-    this.adText = adText;
-	this.prep = prep;
-  }
+class TitleRewriter {
   element(element) {
-	  if(this.prepend){
-		  element.prep(this.adText);
-	  }
-	  else{
-		  element.setInnerContent(this.adText);
-	  }
+	  element.setInnerContent("Suhas Potluri");
     }
   }
+
+
+
+
+
+
+
+
 
 class AttributeRewriter {
   constructor(attributeName) {
@@ -61,6 +60,19 @@ class AttributeRewriter {
   }
 }
 
+class H1Rewriter {
+ 
+  element(element) {
+	  element.prepend("This is Site ");
+  }
+}
+
+class PRewriter {
+ 
+  element(element) {
+	  element.setInnerContent("Cloudflare Fullstack Internship Coding Challenge");
+  }
+}
 
 
 
