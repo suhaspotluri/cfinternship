@@ -34,14 +34,6 @@ class TitleRewriter {
     }
   }
 
-
-
-
-
-
-
-
-
 class AttributeRewriter {
   constructor(attributeName) {
     this.attributeName = attributeName
@@ -68,9 +60,8 @@ class H1Rewriter {
 }
 
 class PRewriter {
- 
   element(element) {
-	  element.setInnerContent("Cloudflare Fullstack Internship Coding Challenge");
+	  element.setInnerContent("e");
   }
 }
 
