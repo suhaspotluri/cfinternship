@@ -2,61 +2,81 @@ const url = "https://cfw-takehome.developers.workers.dev/api/variants";
 const fetch = require('node-fetch');
 const random= require('random');
 
-
 addEventListener('fetch', event => {
   event.respondWith(handleRequest(event.request))
 })
 
 
-new HTMLRewriter.on('title',new ElementHandler()).onDocument( new DocumentHandler())
+
 
 async function handleRequest(request) {
 	let response = await fetch(url);
 	let json = await response.json();
-	console.log(json['variants']);
 	let rand = random.int(min=0,max=1);
 	let siteresponse = await fetch(json['variants'][rand]);
-	let siteRes= await siteresponse.text();
+	let siteRes= await siteresponse;
+	let transRes= await rewriter.transform(siteRes).text()
 	
-  return new Response(siteRes, {
-    headers: { 'content-type': 'text/html' },
-  })
+	return new Response(transRes, {headers: { 'content-type': 'text/html' },})
 }
 
-class ElementHandler {
+
+const rewriter = new HTMLRewriter()
+  .on('a', new AttributeRewriter('href'))
+  .on('title', new TitleRewriter())
+  .on('h1#title', new H1Rewriter())
+  .on('p#description', new PRewriter())
+	
+
+class TitleRewriter {
   element(element) {
-    // An incoming element, such as `div`
-    console.log(`Incoming element: ${element.tagName}`)
+	  element.setInnerContent("Suhas Potluri");
+    }
   }
 
-  comments(comment) {
-    // An incoming comment
-  }
 
-  text(text) {
-    // An incoming piece of text
+
+
+
+
+
+
+
+class AttributeRewriter {
+  constructor(attributeName) {
+    this.attributeName = attributeName
+  }
+ 
+  element(element) {
+    const attribute = element.getAttribute(this.attributeName)
+    if (attribute) {
+      element.setAttribute(
+        this.attributeName,
+        attribute.replace('https://cloudflare.com', 'https://suhasthebest.pythonanywhere.com/hangman')
+      )
+	  element.setInnerContent("Visit My Latest Project");
+	  
+    }
+  }
+}
+
+class H1Rewriter {
+ 
+  element(element) {
+	  element.prepend("This is Site ");
+  }
+}
+
+class PRewriter {
+ 
+  element(element) {
+	  element.setInnerContent("Cloudflare Fullstack Internship Coding Challenge");
   }
 }
 
 
 
-async function handleRequest(req) {
-  const res = await fetch(req)
 
-  return new HTMLRewriter().on('div', new ElementHandler()).transform(res)
-}
 
-class DocumentHandler {
-  doctype(doctype) {
-    // An incoming doctype, such as <!DOCTYPE html>
-  }
 
-  comments(comment) {
-    // An incoming comment
-  }
-
-  text(text) {
-    // An incoming piece of text
-  }
-}
 	
