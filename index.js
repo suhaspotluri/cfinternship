@@ -50,33 +50,36 @@ class InnerRewriter {
 	  }
     }
   }
- //creating rewriter objects of above classes 
-var title = new InnerRewriter("Suhas Potluri",false);
-var h1 =new InnerRewriter("This is Site ",true);
-var p= new InnerRewriter("Cloudflare Fullstack Internship Coding Challenge",false);
-var a= new AttributeRewriter('href');
-//using HTML Rewriter class and passing above rewriter objects
-const rewriter = new HTMLRewriter().on('title', title).on('p#description',p).on('h1#title',h1).on('a',a);
-  
+
   //async function
   async function handleRequest(request) {
+	//getting cookie from headers
 	cook=request.headers.get('Cookie')
-	
-	//gettin api url response 
+	 //getting api url response
 	let response = await fetch(url);
-	//parsing in json
+		//parsing in json
 	let json = await response.json();
 	//generating random int 0-1
 	let rand = random.int(min=0,max=1);
-	//selecting random index of variants array
+	 //creating rewriter objects of above classes to satisfy requirements
+	var title = new InnerRewriter("Suhas Potluri",false);
+	var h1 =new InnerRewriter("This is Site ",true);
+	var p= new InnerRewriter("Cloudflare Fullstack Internship Coding Challenge. No Cookie",false);
+	var a= new AttributeRewriter('href');
 	
-	if(cook=='version=0'){rand=0; console.log('0'+cook);}
-	else if(cook=='version=1'){rand=1; console.log('0'+cook);}
 	//Check for cookie
+	if(cook){
+	if(cook.includes('version=0')){rand=0; console.log('0'+cook);
+	p= new InnerRewriter("Cloudflare Fullstack Internship Coding Challenge. Cookie is set to variant 1",false);
+	}
+	else if(cook.includes('version=1')){rand=1; console.log('0'+cook);
+	p= new InnerRewriter("Cloudflare Fullstack Internship Coding Challenge. Cookie is set to variant 2",false);
+	}
+	}
+	//loading response from site using fetch
 	let siteresponse = await fetch(json['variants'][rand]);
-	//loading response from site
-	
 	let siteRes= await siteresponse;
+	const rewriter = new HTMLRewriter().on('title', title).on('p#description',p).on('h1#title',h1).on('a',a);
 	//calling HTMLRewriter
 	let transRes= await rewriter.transform(siteRes).text()
 	//returning the response for render
