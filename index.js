@@ -1,3 +1,4 @@
+
 const url = "https://cfw-takehome.developers.workers.dev/api/variants";
 const fetch = require('node-fetch');
 const random= require('random');
@@ -5,34 +6,6 @@ const random= require('random');
 addEventListener('fetch', event => {
   event.respondWith(handleRequest(event.request))
 })
-
-
-
-
-async function handleRequest(request) {
-	let response = await fetch(url);
-	let json = await response.json();
-	let rand = random.int(min=0,max=1);
-	let siteresponse = await fetch(json['variants'][rand]);
-	let siteRes= await siteresponse;
-	let transRes= await rewriter.transform(siteRes).text()
-	
-	return new Response(transRes, {headers: { 'content-type': 'text/html' },})
-}
-
-
-const rewriter = new HTMLRewriter()
-  .on('a', new AttributeRewriter('href'))
-  .on('title', new TitleRewriter())
-  .on('h1#title', new H1Rewriter())
-  .on('p#description', new PRewriter())
-	
-
-class TitleRewriter {
-  element(element) {
-	  element.setInnerContent("Suhas Potluri");
-    }
-  }
 
 class AttributeRewriter {
   constructor(attributeName) {
@@ -52,19 +25,38 @@ class AttributeRewriter {
   }
 }
 
-class H1Rewriter {
- 
-  element(element) {
-	  element.prepend("This is Site ");
+class InnerRewriter {
+	constructor(adText,prep) {
+    this.adText = adText;
+	this.prep = prep;
   }
-}
-
-class PRewriter {
   element(element) {
-	  element.setInnerContent("e");
+	  if(this.prep){
+		  element.prepend(this.adText);
+	  }
+	  else{
+		  element.setInnerContent(this.adText);
+	  }
+    }
   }
+  
+var title = new InnerRewriter("Suhas Potluri",false);
+var h1 =new InnerRewriter("This is Site ",true);
+var p= new InnerRewriter("Cloudflare Fullstack Internship Coding Challenge",false);
+var a= new AttributeRewriter('href');
+const rewriter = new HTMLRewriter().on('title', title).on('p#description',p).on('h1#title',h1).on('a',a);
+  
+  
+  async function handleRequest(request) {
+	let response = await fetch(url);
+	let json = await response.json();
+	let rand = random.int(min=0,max=1);
+	let siteresponse = await fetch(json['variants'][rand]);
+	let siteRes= await siteresponse;
+	let transRes= await rewriter.transform(siteRes).text()
+	
+	return new Response(transRes, {headers: { 'content-type': 'text/html' },})
 }
-
 
 
 
