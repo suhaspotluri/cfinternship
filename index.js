@@ -58,8 +58,10 @@ var a= new AttributeRewriter('href');
 //using HTML Rewriter class and passing above rewriter objects
 const rewriter = new HTMLRewriter().on('title', title).on('p#description',p).on('h1#title',h1).on('a',a);
   
-  //async function, sending response
+  //async function
   async function handleRequest(request) {
+	cook=request.headers.get('Cookie')
+	
 	//gettin api url response 
 	let response = await fetch(url);
 	//parsing in json
@@ -67,13 +69,18 @@ const rewriter = new HTMLRewriter().on('title', title).on('p#description',p).on(
 	//generating random int 0-1
 	let rand = random.int(min=0,max=1);
 	//selecting random index of variants array
+	
+	if(cook=='version=0'){rand=0; console.log('0'+cook);}
+	else if(cook=='version=1'){rand=1; console.log('0'+cook);}
+	//Check for cookie
 	let siteresponse = await fetch(json['variants'][rand]);
 	//loading response from site
+	
 	let siteRes= await siteresponse;
 	//calling HTMLRewriter
 	let transRes= await rewriter.transform(siteRes).text()
 	//returning the response for render
-	return new Response(transRes, {headers: { 'content-type': 'text/html' },})
+	return new Response(transRes, {headers: { 'content-type': 'text/html','set-cookie':'version='+rand.toString()},})
 }
 
 
